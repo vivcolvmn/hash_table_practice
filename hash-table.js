@@ -8,6 +8,13 @@ class KeyValuePair {
   }
 }
 
+class newError extends Error{
+  constructor(str){
+    super(str)
+    this.isColision
+  }
+}
+
 class HashTable {
 
   constructor(numBuckets = 4) {
@@ -15,8 +22,6 @@ class HashTable {
     this.capacity = numBuckets;
     this.data = new Array(this.capacity).fill(null);
   }
-
-
 
   hash(key) {
     let hash = sha256(key);
@@ -30,21 +35,57 @@ class HashTable {
   insertNoCollisions(key, value) {
     let index = this.hashMod(key);
     let kvp = new KeyValuePair(key, value);
+
+
+    //if key already exists at this index
+    let current = this.data[index]
+    while (current){
+      if (current.key === key){
+        let e = new newError('hash collision or same key/value pair already exists!')
+        e.isColision = false
+        throw e
+      }
+      current = current.next
+    }
+
+    //error if at capacity or same key-value
+    if (this.count >= this.capacity) {
+        let e = new newError('hash collision or same key/value pair already exists!')
+        e.isColision = true
+        throw e
+    }
+
     this.data[index] = kvp;
     this.count++;
   }
 
   insertWithHashCollisions(key, value) {
-    let index = this.hashMod(key);
-    let kvp = new KeyValuePair(key, value);
-    console.log(this.count, this.capacity)
-    if (this.count === this.capacity) {
-      throw new Error('hash collision or same key/value pair already exists!')
+    try {
+      this.insertNoCollisions(key, value);
+    } catch (error) {
+      let index = this.hashMod(key);
+      let kvp = new KeyValuePair(key, value);
+
+      //does this key exist in the list at this index.
+      // console.log(this.data)
+      if (error.isColision){
+        kvp.next = this.data[index];
+        this.data[index] = kvp;
+        this.count++
+      } else {
+        let current = this.data[index]
+        while (current){
+          if (current.key === key){
+            current.value = value;
+          }
+          current = current.next
+        }
+      }
     }
   }
 
   insert(key, value) {
-    // Your code here
+    this.insertWithHashCollisions(key, value)
   }
 
 }
