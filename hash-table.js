@@ -16,20 +16,31 @@ class HashTable {
     this.data = new Array(this.capacity).fill(null);
   }
 
+
+
   hash(key) {
-    // Your code here
+    let hash = sha256(key);
+    return (parseInt(`0x${hash.substring(0, 8)}`, 16));
   }
 
   hashMod(key) {
-    // Your code here
+    return (this.hash(key) % this.capacity);
   }
 
   insertNoCollisions(key, value) {
-    // Your code here
+    let index = this.hashMod(key);
+    let kvp = new KeyValuePair(key, value);
+    this.data[index] = kvp;
+    this.count++;
   }
 
   insertWithHashCollisions(key, value) {
-    // Your code here
+    let index = this.hashMod(key);
+    let kvp = new KeyValuePair(key, value);
+    console.log(this.count, this.capacity)
+    if (this.count === this.capacity) {
+      throw new Error('hash collision or same key/value pair already exists!')
+    }
   }
 
   insert(key, value) {
