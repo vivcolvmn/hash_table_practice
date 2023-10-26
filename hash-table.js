@@ -9,9 +9,9 @@ class KeyValuePair {
 }
 
 class newError extends Error{
-  constructor(str){
+  constructor(str, isColision){
     super(str)
-    this.isColision
+    this.isColision = isColision;
   }
 }
 
@@ -41,18 +41,14 @@ class HashTable {
     let current = this.data[index]
     while (current){
       if (current.key === key){
-        let e = new newError('hash collision or same key/value pair already exists!')
-        e.isColision = false
-        throw e
+        throw new newError('hash collision or same key/value pair already exists!', false)
       }
       current = current.next
     }
 
     //error if at capacity or same key-value
     if (this.count >= this.capacity) {
-        let e = new newError('hash collision or same key/value pair already exists!')
-        e.isColision = true
-        throw e
+        throw new newError('hash collision or same key/value pair already exists!', true)
     }
 
     this.data[index] = kvp;
